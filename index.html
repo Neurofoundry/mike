@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLC Name Generator</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body, #app-wrapper {
+      height: 100%;
+      width: 100%;
+    }
+
+    #app-wrapper {
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a0505 100%);
+      color: #ff6b6b;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      overflow-auto;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 50px;
+      text-align: center;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: #ff8585;
+      text-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
+    }
+
+    .config-section {
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 107, 107, 0.15);
+    }
+
+    .config-section label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: #ff9999;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 500;
+    }
+
+    .config-section input:not([type="hidden"]) {
+      width: 100%;
+      background: rgba(10, 10, 10, 0.6);
+      color: #ffb3b3;
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      padding: 12px 16px;
+      font-size: 14px;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .config-section input:focus {
+      outline: none;
+      border-color: rgba(255, 107, 107, 0.6);
+      box-shadow: 0 0 20px rgba(255, 107, 107, 0.15);
+      background: rgba(20, 5, 5, 0.8);
+    }
+
+    .word-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 35px;
+    }
+
+    .word-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .word-number {
+      font-size: 20px;
+      font-weight: 600;
+      min-width: 30px;
+      color: #ff9999;
+      opacity: 0.7;
+    }
+
+    .word-input {
+      flex: 1;
+      background: rgba(10, 10, 10, 0.6);
+      color: #ffb3b3;
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      padding: 16px 20px;
+      font-size: 16px;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      border-radius: 16px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .word-input:focus {
+      outline: none;
+      border-color: rgba(255, 107, 107, 0.6);
+      box-shadow: 0 0 25px rgba(255, 107, 107, 0.15);
+      background: rgba(20, 5, 5, 0.8);
+    }
+
+    .word-input::placeholder {
+      color: rgba(255, 107, 107, 0.3);
+    }
+
+    button {
+      width: 100%;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+      color: #ffffff;
+      border: none;
+      padding: 18px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 35px;
+      box-shadow: 0 4px 20px rgba(255, 107, 107, 0.25);
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #ff5252 0%, #ff3d3d 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 30px rgba(255, 107, 107, 0.35);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      background: linear-gradient(135deg, #664444 0%, #553333 100%);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .results {
+      background: rgba(10, 10, 10, 0.6);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      border-radius: 20px;
+      padding: 28px;
+      min-height: 150px;
+      backdrop-filter: blur(10px);
+    }
+
+    .results h2 {
+      font-size: 18px;
+      margin-bottom: 18px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #ff9999;
+    }
+
+    .results-content {
+      font-size: 15px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      color: #ffb3b3;
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      color: #ff9999;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 107, 107, 0.2);
+      border-top-color: #ff8585;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error {
+      color: #ffaaaa;
+    }
+
+    .waiting {
+      color: rgba(255, 107, 107, 0.5);
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 36px;
+        margin-bottom: 30px;
+      }
+
+      .word-input-wrapper {
+        gap: 10px;
+      }
+
+      .word-number {
+        font-size: 20px;
+        min-width: 25px;
+      }
+
+      .word-input {
+        padding: 14px 16px;
+        font-size: 16px;
+      }
+
+      button {
+        padding: 16px 20px;
+        font-size: 18px;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div id="app-wrapper">
+   <div class="container">
+    <h1 id="page-title">LLC NAMEGEN:</h1>
+    <div class="config-section"><label for="worker-url" id="worker-url-label">Worker URL</label> <input type="text" id="worker-url" placeholder="https://your-worker.workers.dev"> <input type="hidden" id="instruction-file" value="/path/to/instructions.md"> <input type="hidden" id="api-key" value="">
+    </div>
+    <div class="word-inputs">
+     <div class="word-input-wrapper"><span class="word-number">1.</span> <input type="text" class="word-input" id="word1" placeholder="Enter first word...">
+     </div>
+     <div class="word-input-wrapper"><span class="word-number">2.</span> <input type="text" class="word-input" id="word2" placeholder="Enter second word...">
+     </div>
+     <div class="word-input-wrapper"><span class="word-number">3.</span> <input type="text" class="word-input" id="word3" placeholder="Enter third word...">
+     </div>
+     <div class="word-input-wrapper"><span class="word-number">4.</span> <input type="text" class="word-input" id="word4" placeholder="Enter fourth word...">
+     </div>
+     <div class="word-input-wrapper"><span class="word-number">5.</span> <input type="text" class="word-input" id="word5" placeholder="Enter fifth word...">
+     </div>
+    </div><button id="generate-btn">Generate Name</button>
+    <div class="results">
+     <h2>Generated Names</h2>
+     <div id="results-content" class="results-content"><span class="waiting">Enter words and click generate...</span>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      page_title: "LLC NAMEGEN:",
+      button_text: "Generate Name",
+      worker_url_label: "https://echo.csirico9.workers.dev",
+      instruction_file: "/path/to/instructions.md",
+      api_key: "Tr1bXimgEnV1-sdbAI25",
+      background_color: "#0a0a0a",
+      text_color: "#ff6b6b",
+      input_bg: "rgba(10, 10, 10, 0.6)",
+      button_bg: "#ff6b6b",
+      button_text_color: "#ffffff"
+    };
+
+    async function onConfigChange(config) {
+      const pageTitle = document.getElementById('page-title');
+      const generateBtn = document.getElementById('generate-btn');
+      const workerUrlLabel = document.getElementById('worker-url-label');
+      const instructionFileInput = document.getElementById('instruction-file');
+      
+      pageTitle.textContent = config.page_title || defaultConfig.page_title;
+      generateBtn.textContent = config.button_text || defaultConfig.button_text;
+      workerUrlLabel.textContent = config.worker_url_label || defaultConfig.worker_url_label;
+      instructionFileInput.value = config.instruction_file || defaultConfig.instruction_file;
+      
+      const apiKeyInput = document.getElementById('api-key');
+      apiKeyInput.value = config.api_key || defaultConfig.api_key;
+      
+      const wrapper = document.getElementById('app-wrapper');
+      const bgColor = config.background_color || defaultConfig.background_color;
+      wrapper.style.background = `linear-gradient(135deg, ${bgColor} 0%, #1a0505 100%)`;
+      
+      const textColor = config.text_color || defaultConfig.text_color;
+      document.querySelectorAll('.word-number, .results h2, .config-section label').forEach(el => {
+        el.style.color = textColor;
+      });
+      
+      const inputs = document.querySelectorAll('.word-input, .config-section input:not([type="hidden"])');
+      inputs.forEach(input => {
+        input.style.background = config.input_bg || defaultConfig.input_bg;
+        input.style.color = textColor;
+        input.style.borderColor = `rgba(255, 107, 107, 0.3)`;
+      });
+
+      const results = document.querySelector('.results');
+      results.style.background = config.input_bg || defaultConfig.input_bg;
+      results.style.borderColor = `rgba(255, 107, 107, 0.3)`;
+      
+      const buttonBg = config.button_bg || defaultConfig.button_bg;
+      generateBtn.style.background = `linear-gradient(135deg, ${buttonBg} 0%, #ff5252 100%)`;
+      generateBtn.style.color = config.button_text_color || defaultConfig.button_text_color;
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              config.text_color = value;
+              window.elementSdk.setConfig({ text_color: value });
+            }
+          },
+          {
+            get: () => config.input_bg || defaultConfig.input_bg,
+            set: (value) => {
+              config.input_bg = value;
+              window.elementSdk.setConfig({ input_bg: value });
+            }
+          },
+          {
+            get: () => config.button_bg || defaultConfig.button_bg,
+            set: (value) => {
+              config.button_bg = value;
+              window.elementSdk.setConfig({ button_bg: value });
+            }
+          },
+          {
+            get: () => config.button_text_color || defaultConfig.button_text_color,
+            set: (value) => {
+              config.button_text_color = value;
+              window.elementSdk.setConfig({ button_text_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ["page_title", config.page_title || defaultConfig.page_title],
+        ["button_text", config.button_text || defaultConfig.button_text],
+        ["worker_url_label", config.worker_url_label || defaultConfig.worker_url_label],
+        ["instruction_file", config.instruction_file || defaultConfig.instruction_file],
+        ["api_key", config.api_key || defaultConfig.api_key]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+
+    const workerUrlInput = document.getElementById('worker-url');
+    const word1Input = document.getElementById('word1');
+    const word2Input = document.getElementById('word2');
+    const word3Input = document.getElementById('word3');
+    const word4Input = document.getElementById('word4');
+    const word5Input = document.getElementById('word5');
+    const generateBtn = document.getElementById('generate-btn');
+    const resultsContent = document.getElementById('results-content');
+
+    async function loadInstructions() {
+      const instructionFileInput = document.getElementById('instruction-file');
+      const instructionPath = instructionFileInput.value || defaultConfig.instruction_file;
+      
+      try {
+        const response = await fetch(instructionPath);
+        if (!response.ok) {
+          console.warn('Instructions file not found, using default prompt');
+          return null;
+        }
+        return await response.text();
+      } catch (error) {
+        console.warn('Could not load instructions:', error);
+        return null;
+      }
+    }
+
+    generateBtn.addEventListener('click', async () => {
+      const workerUrl = workerUrlInput.value.trim();
+      const words = [
+        word1Input.value.trim(),
+        word2Input.value.trim(),
+        word3Input.value.trim(),
+        word4Input.value.trim(),
+        word5Input.value.trim()
+      ].filter(word => word !== '');
+      
+      if (!workerUrl) {
+        resultsContent.innerHTML = '<span class="error">Error: Please enter a Worker URL</span>';
+        return;
+      }
+      
+      if (words.length === 0) {
+        resultsContent.innerHTML = '<span class="error">Error: Please enter at least one word</span>';
+        return;
+      }
+
+      generateBtn.disabled = true;
+      resultsContent.innerHTML = '<div class="loading"><div class="spinner"></div> Generating LLC names...</div>';
+      
+      try {
+        // Load instructions from .md file
+        const instructions = await loadInstructions();
+        
+        // Build the prompt
+        let prompt = '';
+        if (instructions) {
+          prompt = `${instructions}\n\nWords to create portmanteau from: ${words.join(', ')}`;
+        } else {
+          // Default prompt if no instruction file is loaded
+          prompt = `Create creative portmanteau business names for an LLC using these words: ${words.join(', ')}. Generate 5-10 unique, memorable LLC name suggestions that blend these words together. Make them sound professional and suitable for a business.`;
+        }
+        
+        const apiKeyInput = document.getElementById('api-key');
+        const apiKey = apiKeyInput.value || '';
+        
+        const headers = {
+          'Content-Type': 'application/json'
+        };
+        
+        if (apiKey) {
+          headers['Authorization'] = `Bearer ${apiKey}`;
+        }
+        
+        const response = await fetch(`${workerUrl}/v1/chat/completions`, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify({
+            messages: [
+              {
+                role: 'user',
+                content: prompt
+              }
+            ]
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        // Display the response - extract from OpenAI-compatible format
+        if (data.choices && data.choices[0] && data.choices[0].message) {
+          resultsContent.textContent = data.choices[0].message.content;
+        } else if (typeof data === 'string') {
+          resultsContent.textContent = data;
+        } else if (data.response) {
+          resultsContent.textContent = data.response;
+        } else {
+          resultsContent.textContent = JSON.stringify(data, null, 2);
+        }
+      } catch (error) {
+        resultsContent.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+      } finally {
+        generateBtn.disabled = false;
+      }
+    });
+
+    // Allow Enter key on any input to trigger generation
+    const allInputs = [workerUrlInput, word1Input, word2Input, word3Input, word4Input, word5Input];
+    allInputs.forEach(input => {
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          generateBtn.click();
+        }
+      });
+    });
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9ba0324c7002daed',t:'MTc2Nzc1NDczOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
