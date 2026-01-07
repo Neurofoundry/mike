@@ -277,7 +277,7 @@
       button_text: "Generate Name",
       worker_url_label: "https://echo.csirico9.workers.dev",
       instruction_file: "/path/to/instructions.md",
-      api_key: "Tr1bXimgEnV1-sdbAI25",
+      apiKey: "Tr1bXimgEnV1-sdbAI25",
       background_color: "#0a0a0a",
       text_color: "#ff6b6b",
       input_bg: "rgba(10, 10, 10, 0.6)",
@@ -461,28 +461,42 @@
           headers['Authorization'] = `Bearer ${apiKey}`;
         }
         
-        const response = await fetch(`${workerUrl}/v1/chat/completions`, {
+        // Build completions payload
+        const model = '@hf/nousresearch/hermes-2-pro-mistral-7b';
+        const payload = {
+          model,
+          prompt,
+          max_tokens: 128,
+          temperature: 0.7
+        };
+
+        // Add x-auth-key alongside Authorization for worker compatibility
+        if (apiKey && !headers['x-auth-key']) {
+          headers['x-auth-key'] = apiKey;
+        }
+
+        const response = await fetch(`${workerUrl}/v1/completions`, {
           method: 'POST',
           headers: headers,
-          body: JSON.stringify({
-            messages: [
-              {
-                role: 'user',
-                content: prompt
-              }
-            ]
-          })
+          body: JSON.stringify(payload)
         });
         
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         
-        const data = await response.json();
-        
-        // Display the response - extract from OpenAI-compatible format
-        if (data.choices && data.choices[0] && data.choices[0].message) {
-          resultsContent.textContent = data.choices[0].message.content;
+        const data = await response.json().catch(async () => ({ raw: await response.text() }));
+
+        // Display the response - prefer completions text; fallback to chat-style
+        if (data.choices && data.choices[0]) {
+          const choice = data.choices[0];
+          if (typeof choice.text === 'string' && choice.text.trim()) {
+            resultsContent.textContent = choice.text;
+          } else if (choice.message && choice.message.content) {
+            resultsContent.textContent = choice.message.content;
+          } else {
+            resultsContent.textContent = JSON.stringify(choice, null, 2);
+          }
         } else if (typeof data === 'string') {
           resultsContent.textContent = data;
         } else if (data.response) {
